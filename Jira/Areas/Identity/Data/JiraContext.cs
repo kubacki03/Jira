@@ -39,6 +39,18 @@ public class JiraContext : IdentityDbContext<JiraUser>
             .WithMany(c => c.Attachments)
             .OnDelete(DeleteBehavior.Cascade);
 
+
+        builder.Entity<Sprint>()
+            .HasOne(s => s.Project)
+            .WithMany(c => c.Sprints)
+            .HasForeignKey(k => k.ProjectId);
+
+        builder.Entity<Sprint>()
+            .HasOne(s => s.SprintMaster)
+            .WithMany(c => c.Sprints)
+            .HasForeignKey(p => p.SprintMasterId);
+
+
         builder.Entity<Project>()
         .HasOne(p => p.Creator)       // Projekt ma jednego kreatora
         .WithMany(u => u.CreatedProjects)  // Użytkownik może stworzyć wiele projektów

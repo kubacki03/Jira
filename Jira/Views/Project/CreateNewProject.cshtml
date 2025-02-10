@@ -1,0 +1,6 @@
+﻿@page
+@model Jira.Views.Project.CreateNewProjectModel
+<h1>New project was created</h1>
+@if(TempData["Error"]!=null){
+	<p>@TempData["Error"]</p>
+}

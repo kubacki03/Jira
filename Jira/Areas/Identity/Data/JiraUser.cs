@@ -17,6 +17,8 @@ public class JiraUser : IdentityUser
     public ICollection<Project> Projects { get; set; } = new List<Project>();
 
     public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
+
+    public ICollection<Sprint> Sprints { get; set; } = new List<Sprint>();
 }
 
 

@@ -18,6 +18,8 @@ namespace Jira.Models
 
         public ICollection<JiraUser> Users { get; set; } = new List<JiraUser>();
         public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
+
+        public ICollection<Sprint> Sprints { get; set; } = new List<Sprint>();
     }
 
 

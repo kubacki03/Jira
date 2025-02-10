@@ -28,7 +28,7 @@ app.UseRouting();
 
 app.UseAuthorization();
 app.UseAuthentication(); // Ensure this is added before authorization
-app.MapRazorPages(); // Dodaje obs³ugê stron Identity
+app.MapRazorPages(); 
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapRazorPages();

@@ -4,6 +4,7 @@ using Jira.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Jira.Controllers
 {
@@ -23,21 +24,48 @@ namespace Jira.Controllers
             _context = context;
         }
 
-        [Authorize]
+       
         public async Task<ActionResult> CreateNewProject(string description, string name, string password)
         {
             var user = await _userManager.GetUserAsync(User);
-            Project newProject = new Project { CreatedAt = DateTime.Now, Description = description, Name=name, Creator= user, Password=password};
 
+            var existProject = _context.Projects.FirstOrDefault(p=> (p.Name == name));
+
+            if (existProject != null) {
+                TempData["Error"] = "Project with this name already exists";
+                return View();
+            }
+
+            Project newProject = new Project { CreatedAt = DateTime.Now, Description = description, Name=name, Creator= user, Password=password};
+            _context.Projects.Add(newProject);
+            _context.SaveChanges();
             return View();
         }
 
 
-        [Authorize]
+        public async Task<ActionResult> AddUserToProject(string userId, int projectId)
+        {
+            var project =await  _context.Projects.Include(p=> p.Users).FirstOrDefaultAsync(p=> p.Id==projectId);
+            var user = _context.Users.FirstOrDefault(u => u.Id == userId);
+
+            if (project.Users.Contains(user))
+            {
+                TempData["Error"] = "User already existst in project";
+            }
+            else
+            {
+                project.Users.Add(user);
+                _context.SaveChanges();
+            }
+            return View();
+
+        }
+
+      
         public async Task<ActionResult> JoinAProject(long projectId, string password)
         {
             var user = await _userManager.GetUserAsync(User);
-            var project = _context.Projects.FirstOrDefault(p => (p.Id == projectId && p.Password.Equals(password)));
+            var project =await _context.Projects.Include(s=> s.Users).FirstOrDefaultAsync(p => (p.Id == projectId && p.Password.Equals(password)));
 
             if (project == null) {
                 TempData["Error"] = "Password incorrect";

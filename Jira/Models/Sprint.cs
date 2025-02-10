@@ -1,4 +1,6 @@
-﻿namespace Jira.Models
+﻿using Jira.Areas.Identity.Data;
+
+namespace Jira.Models
 {
     public class Sprint
     {
@@ -6,6 +8,9 @@
         public string Name { get; set; } = string.Empty;
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+
+        public string SprintMasterId { get; set; }
+        public JiraUser SprintMaster { get; set; }
 
         public int ProjectId { get; set; }
         public Project Project { get; set; }
