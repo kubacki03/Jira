@@ -3,7 +3,16 @@
 <h1>@Model.Name</h1>
 <p>@Model.Description</p>
 
-<a asp-controller="Project" asp-action="GetUserTicketsInProject" asp-route-projectId="@Model.Id">
+@foreach(var sprint in Model.Sprints){
+    <p>Nazwa: @sprint.Name</p>
+    <p>@sprint.StartDate do @sprint.EndDate</p>
+    <a asp-controller="Sprint" asp-action="GetSprintDetailsPage" asp-route-sprintId="@sprint.Id">
+        Zarzadzaj sprintem
+    </a>
+}
+
+
+<a asp-controller="Project" asp-action="GetUserTicketsInProject" asp-route-sprintId="@Model.Id">
     Moje zadania w projekcie
 </a>
 <a asp-controller="Sprint" asp-action="GetTicketsFromSprint" asp-route-projectId="@Model.Id">

@@ -1,0 +1,52 @@
+﻿@model Jira.Models.Sprint
+
+@if (Model != null)
+{
+    <h1>@Model.Name</h1>
+    <p>@Model.StartDate do @Model.EndDate</p>
+
+    @if (Model.SprintMasterId == (TempData["userId"] as string))
+    {
+        <form method="post" asp-action="CreateNewTicket" asp-controller="Ticket" class="bg-white/80 p-8 rounded-lg shadow-xl backdrop-blur-md w-full max-w-lg mx-4 sm:max-w-xl md:max-w-2xl">
+            <h2 class="text-3xl font-semibold text-gray-800 text-center mb-6">Stwórz nowy sprint</h2>
+
+            <div class="flex flex-wrap space-y-4 sm:space-y-0 sm:flex-row sm:space-x-4 mb-6">
+                <div class="flex-1">
+                    <label for="Title" class="block text-gray-700 font-semibold mb-2">Nazwa</label>
+                    <input type="text" name="Title" id="Title" required class="bg-transparent border-2 border-gray-300 text-gray-700 outline-none px-4 py-2 rounded-md w-full focus:ring-2 focus:ring-amber-600 transition">
+                </div>
+
+                <div class="flex-1">
+                    <label for="Description" class="block text-gray-700 font-semibold mb-2">Opis</label>
+                    <input type="text" name="Description" id="Description" required class="bg-transparent border-2 border-gray-300 text-gray-700 outline-none px-4 py-2 rounded-md w-full focus:ring-2 focus:ring-amber-600 transition">
+                </div>
+
+
+            <input type="hidden" name="ProjectId" value="@Model.ProjectId" />
+            <input type="hidden" name="SprintId" value="@Model.Id" />
+
+                @if (Model.Project?.Users != null)
+                {
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-semibold mb-2">Wybierz użytkownika:</label>
+                        @foreach (var user in Model.Project.Users)
+                        {
+                            <div class="flex items-center mb-2">
+                                <input type="radio" name="SelectedUser" value="@user.Id" id="user_@user.Id" class="mr-2">
+                                <label for="user_@user.Id" class="text-gray-700">@user.UserName</label>
+                            </div>
+                        }
+                    </div>
+                }
+
+
+            <button type="submit" id="submitButton" class="bg-amber-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-amber-700 transition">
+                Dodaj
+            </button>
+        </form>
+    }
+}
+else
+{
+    <p class="text-red-500">Sprint nie został znaleziony.</p>
+}

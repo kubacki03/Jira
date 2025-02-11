@@ -3,6 +3,8 @@ using Jira.Data;
 using Jira.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Build.Evaluation;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 
 namespace Jira.Controllers
@@ -21,49 +23,44 @@ namespace Jira.Controllers
             _userManager = userManager;
             _context = context;
         }
-        public async Task<ActionResult> CreateNewTicket(string userId, string description, string title, int projectId, int sprintId)
+        public async Task<ActionResult> CreateNewTicket(string SelectedUser, string Description, string Title, int ProjectId, int SprintId)
         {
             var user = await _userManager.GetUserAsync(User);
+            var assignee = await _context.Users.FirstOrDefaultAsync(u => u.Id == SelectedUser);
+            var project = await _context.Projects.FirstOrDefaultAsync(p => p.Id == ProjectId);
+            var sprint = await _context.Sprints.Include(s => s.Tickets)
+                                               .FirstOrDefaultAsync(s => s.Id == SprintId);
 
-
-
-            var assignee = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
-            var project = await _context.Projects.FirstOrDefaultAsync(p => p.Id == projectId);
-            var sprint = await _context.Sprints.Include(s => s.Tickets) // Ważne: Załaduj listę Tickets
-                                               .FirstOrDefaultAsync(s => s.Id == sprintId);
-
-            if(sprint.SprintMasterId != user.Id)
+            if (sprint.SprintMasterId != user.Id)
             {
-                TempData["Error"] = "You dont have rights to create a ticket";
+                TempData["Error"] = "You don't have rights to create a ticket";
                 return View();
-
             }
 
             if (project == null || sprint == null)
             {
-                return NotFound(); // Obsługa błędów, jeśli projekt lub sprint nie istnieje
+                return NotFound();
             }
 
             var ticket = new Ticket
             {
                 Assignee = assignee,
-                AssigneeId = userId,
-                Description = description,
-                ProjectId = projectId,
+                AssigneeId = SelectedUser,
+                Description = Description,
+                ProjectId = ProjectId,
                 Project = project,
-                Title = title,
+                Title = Title,
                 Sprint = sprint,
-                SprintId = sprintId
+                SprintId = SprintId
             };
 
             _context.Tickets.Add(ticket);
-
-            // Ręczne dodanie do kolekcji Sprint.Tickets
             sprint.Tickets.Add(ticket);
-
             await _context.SaveChangesAsync();
-            return View();
+
+            return RedirectToAction("ProjectDetailsPage", "Project", new { projectId = ProjectId });
         }
+
 
 
         public async Task<ActionResult> ChangeTicketStatus(int ticketId, string newStatus)

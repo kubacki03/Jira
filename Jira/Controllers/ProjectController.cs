@@ -101,7 +101,7 @@ namespace Jira.Controllers
 
         public async Task<IActionResult> ProjectDetailsPageAsync(int projectId)
         {
-            var project = await _context.Projects.FirstOrDefaultAsync(p => p.Id == projectId);
+            var project = await _context.Projects.Include(s=> s.Sprints).FirstOrDefaultAsync(p => p.Id == projectId);
 
             if (project == null)
             {
@@ -110,6 +110,8 @@ namespace Jira.Controllers
 
             var user = await _userManager.GetUserAsync(User);
             TempData["userId"] = user.Id;
+
+            
 
             return View(project);
         }

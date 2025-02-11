@@ -52,7 +52,7 @@ namespace Jira.Controllers
 
         public Sprint GetCurrentSprintInProject(int projectId) {
 
-            var sprint = _context.Sprints
+            var sprint = _context.Sprints.Include(z=> z.Tickets)
      .FirstOrDefault(p => p.ProjectId == projectId && p.StartDate <= DateTime.UtcNow && DateTime.UtcNow <= p.EndDate);
 
             return sprint ;
@@ -61,6 +61,7 @@ namespace Jira.Controllers
         //Get all tickets for all users in sprint
         public IActionResult GetTicketsFromSprint(int projectId)
         {
+            //jest nullem
             var sprint = GetCurrentSprintInProject(projectId);
 
             if (sprint == null)
@@ -73,6 +74,30 @@ namespace Jira.Controllers
             return View(tickets);
         }
 
+
+
+        public async Task<IActionResult> GetSprintDetailsPage(int sprintId)
+        {
+            var sprint = await _context.Sprints
+                .Include(s => s.Tickets)
+                .Include(s => s.Project) // Dodatkowe załadowanie projektu
+                .ThenInclude(p => p.Users) // Załaduj użytkowników projektu
+                .FirstOrDefaultAsync(p => p.Id == sprintId);
+
+            if (sprint == null)
+            {
+                return NotFound("Sprint nie został znaleziony.");
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized("Nie można znaleźć zalogowanego użytkownika.");
+            }
+
+            TempData["userId"] = user.Id;
+            return View(sprint);
+        }
 
     }
 }
