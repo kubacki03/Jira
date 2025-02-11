@@ -1,0 +1,19 @@
+﻿
+@model List<Jira.Models.Ticket>
+
+@if (Model == null || !Model.Any()){
+	<div class="max-w-sm bg-white rounded-lg shadow-md p-6">
+		<h2 class="text-xl font-bold">Nie masz zadnych zadan w tym projekcie</h2>
+		
+	</div>
+}
+else{
+@foreach(var ticket in Model){
+
+	<div class="max-w-sm bg-white rounded-lg shadow-md p-6">
+		<h2 class="text-xl font-bold">@ticket.Title</h2>
+		<p class="text-gray-600 mt-2">@ticket.Description</p>
+	</div>
+
+}
+}

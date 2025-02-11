@@ -1,0 +1,54 @@
+﻿@model List<Jira.Models.Ticket>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="max-w-sm bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-bold">Nie masz żadnych zadań w tym projekcie</h2>
+    </div>
+}
+else
+{
+    <div class="grid grid-cols-3 gap-4">
+        <!-- Kolumna: To Do -->
+        <div class="bg-gray-100 p-4 rounded-lg">
+            <h2 class="text-lg font-bold text-center">To Do</h2>
+            <div class="space-y-4">
+                @foreach (var ticket in Model.Where(t => t.Status == TicketStatus.ToDo))
+                {
+                    <div class="bg-white p-4 shadow-md rounded-lg">
+                        <h3 class="font-bold">@ticket.Title</h3>
+                        <p class="text-sm text-gray-600">@ticket.Description</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Kolumna: In Progress -->
+        <div class="bg-blue-100 p-4 rounded-lg">
+            <h2 class="text-lg font-bold text-center">In Progress</h2>
+            <div class="space-y-4">
+                @foreach (var ticket in Model.Where(t => t.Status == TicketStatus.InProgress))
+                {
+                    <div class="bg-white p-4 shadow-md rounded-lg">
+                        <h3 class="font-bold">@ticket.Title</h3>
+                        <p class="text-sm text-gray-600">@ticket.Description</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Kolumna: Done -->
+        <div class="bg-green-100 p-4 rounded-lg">
+            <h2 class="text-lg font-bold text-center">Done</h2>
+            <div class="space-y-4">
+                @foreach (var ticket in Model.Where(t => t.Status == TicketStatus.Done))
+                {
+                    <div class="bg-white p-4 shadow-md rounded-lg">
+                        <h3 class="font-bold">@ticket.Title</h3>
+                        <p class="text-sm text-gray-600">@ticket.Description</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}

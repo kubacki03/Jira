@@ -23,20 +23,56 @@ namespace Jira.Controllers
             _context = context;
         }
 
-        public async Task<ActionResult> CreateNewSprint(Sprint sprint, int projectId)
+        [HttpPost]
+        public async Task<IActionResult> CreateNewSprint(Sprint sprint, int projectId)
         {
             var user = await _userManager.GetUserAsync(User);
-            var project =await _context.Projects.Include(x=> x.Sprints).FirstOrDefaultAsync(p => p.Id == projectId);
+            var project = await _context.Projects.Include(x => x.Sprints)
+                                                 .FirstOrDefaultAsync(p => p.Id == projectId);
+
+            if (project == null)
+            {
+                return NotFound("Projekt nie istnieje.");
+            }
+
             sprint.SprintMaster = user;
             sprint.SprintMasterId = user.Id;
             sprint.Project = project;
-            sprint.ProjectId= projectId;
+            sprint.ProjectId = projectId;
+
             project.Sprints.Add(sprint);
             _context.Sprints.Add(sprint);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            return View();
+            return RedirectToAction("ProjectDetailsPage", "Project", new { projectId = projectId });
+
         }
+
+
+
+        public Sprint GetCurrentSprintInProject(int projectId) {
+
+            var sprint = _context.Sprints
+     .FirstOrDefault(p => p.ProjectId == projectId && p.StartDate <= DateTime.UtcNow && DateTime.UtcNow <= p.EndDate);
+
+            return sprint ;
+        }
+
+        //Get all tickets for all users in sprint
+        public IActionResult GetTicketsFromSprint(int projectId)
+        {
+            var sprint = GetCurrentSprintInProject(projectId);
+
+            if (sprint == null)
+            {
+                // Możesz zwrócić pusty widok, komunikat błędu lub przekierowanie
+                return View(new List<Ticket>());
+            }
+
+            var tickets = _context.Tickets.Where(t => t.SprintId == sprint.Id).ToList();
+            return View(tickets);
+        }
+
 
     }
 }

@@ -36,7 +36,8 @@ namespace Jira.Controllers
                 return View();
             }
 
-            Project newProject = new Project { CreatedAt = DateTime.Now, Description = description, Name=name, Creator= user, Password=password};
+            Project newProject = new Project { CreatedAt = DateTime.Now, Description = description, Name = name, Creator = user, Password = password };
+            newProject.Users.Add(user);
             _context.Projects.Add(newProject);
             _context.SaveChanges();
             return View();
@@ -81,6 +82,36 @@ namespace Jira.Controllers
             _context.SaveChanges();
 
             return View();
+        }
+
+
+        public async Task<ActionResult> GetUserTicketsInProject(int projectId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            var tickets = await _context.Tickets
+             .Where(t => t.ProjectId == projectId && t.AssigneeId == user.Id)
+             .ToListAsync();
+
+
+
+            return View(tickets ?? new List<Jira.Models.Ticket>());
+
+        }
+
+        public async Task<IActionResult> ProjectDetailsPageAsync(int projectId)
+        {
+            var project = await _context.Projects.FirstOrDefaultAsync(p => p.Id == projectId);
+
+            if (project == null)
+            {
+                return NotFound("Projekt nie istnieje.");
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            TempData["userId"] = user.Id;
+
+            return View(project);
         }
     }
 }

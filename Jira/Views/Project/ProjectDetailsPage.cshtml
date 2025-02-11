@@ -1,0 +1,41 @@
+﻿@model Jira.Models.Project
+
+<h1>@Model.Name</h1>
+<p>@Model.Description</p>
+
+<a asp-controller="Project" asp-action="GetUserTicketsInProject" asp-route-projectId="@Model.Id">
+    Moje zadania w projekcie
+</a>
+<a asp-controller="Sprint" asp-action="GetTicketsFromSprint" asp-route-projectId="@Model.Id">
+    Tablica kanban
+</a>
+
+@if (Model.CreatorId == (TempData["userId"] as string))
+{
+    <form method="post" asp-action="CreateNewSprint" asp-controller="Sprint" class="bg-white/80 p-8 rounded-lg shadow-xl backdrop-blur-md w-full max-w-lg mx-4 sm:max-w-xl md:max-w-2xl">
+        <h2 class="text-3xl font-semibold text-gray-800 text-center mb-6">Stworz nowy sprint</h2>
+
+        <div class="flex flex-wrap space-y-4 sm:space-y-0 sm:flex-row sm:space-x-4 mb-6">
+            <div class="flex-1">
+                <label for="Name" class="block text-gray-700 font-semibold mb-2">Nazwa</label>
+                <input type="text" name="Name" id="Name" required class="bg-transparent border-2 border-gray-300 text-gray-700 outline-none px-4 py-2 rounded-md w-full focus:ring-2 focus:ring-amber-600 transition">
+            </div>
+
+            <div class="flex-1">
+                <label for="StartDate" class="block text-gray-700 font-semibold mb-2">Data startu</label>
+                <input type="date" name="StartDate" id="StartDate" required class="bg-transparent border-2 border-gray-300 text-gray-700 outline-none px-4 py-2 rounded-md w-full focus:ring-2 focus:ring-amber-600 transition">
+            </div>
+
+            <div class="flex-1">
+                <label for="EndDate" class="block text-gray-700 font-semibold mb-2">Data końca</label>
+                <input type="date" name="EndDate" id="EndDate" required class="bg-transparent border-2 border-gray-300 text-gray-700 outline-none px-4 py-2 rounded-md w-full focus:ring-2 focus:ring-amber-600 transition">
+            </div>
+        </div>
+
+        <input type="hidden" name="ProjectId" value="@Model.Id" />
+
+        <button type="submit" id="submitButton" class="bg-amber-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-amber-700 transition">
+            Dodaj
+        </button>
+    </form>
+}
