@@ -1,54 +1,211 @@
-﻿@model List<Jira.Models.Ticket>
+﻿
 
-@if (Model == null || !Model.Any())
-{
-    <div class="max-w-sm bg-white rounded-lg shadow-md p-6">
-        <h2 class="text-xl font-bold">Nie masz żadnych zadań w tym sprincie</h2>
-    </div>
-}
-else
-{
-    <div class="grid grid-cols-3 gap-4">
-        <!-- Kolumna: To Do -->
-        <div class="bg-gray-100 p-4 rounded-lg">
-            <h2 class="text-lg font-bold text-center">To Do</h2>
-            <div class="space-y-4">
-                @foreach (var ticket in Model.Where(t => t.Status == TicketStatus.ToDo))
-                {
-                    <div class="bg-white p-4 shadow-md rounded-lg">
-                        <h3 class="font-bold">@ticket.Title</h3>
-                        <p class="text-sm text-gray-600">@ticket.Description</p>
-                    </div>
-                }
-            </div>
-        </div>
 
-        <!-- Kolumna: In Progress -->
-        <div class="bg-blue-100 p-4 rounded-lg">
-            <h2 class="text-lg font-bold text-center">In Progress</h2>
-            <div class="space-y-4">
-                @foreach (var ticket in Model.Where(t => t.Status == TicketStatus.InProgress))
-                {
-                    <div class="bg-white p-4 shadow-md rounded-lg">
-                        <h3 class="font-bold">@ticket.Title</h3>
-                        <p class="text-sm text-gray-600">@ticket.Description</p>
-                    </div>
-                }
-            </div>
-        </div>
+@model List<Jira.Models.Ticket>
 
-        <!-- Kolumna: Done -->
-        <div class="bg-green-100 p-4 rounded-lg">
-            <h2 class="text-lg font-bold text-center">Done</h2>
-            <div class="space-y-4">
-                @foreach (var ticket in Model.Where(t => t.Status == TicketStatus.Done))
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📌 Drag and Drop</title>
+
+    <style>
+
+
+        .board {
+        display: flex;
+        justify-content: center;
+        margin-top: 50px;
+        }
+
+        .card {
+        background: #3F4447;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 3px;
+        cursor: pointer;
+        width: 150px;
+        height: 60px;
+        cursor: grab;
+        transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .card:active {
+        cursor: grabbing;
+        }
+
+        .card.dragging {
+        opacity: .5;
+        transform: scale(.8);
+        }
+
+        .column {
+        padding: 10px;
+        background: #2c2c2c;
+        border: 2px solid #2c2c2c;
+        transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .column.column-todo h2 {
+        background: #3498DB;
+        }
+
+        .column.column-ip h2 {
+        background: #F39C12;
+        }
+
+        .column.column-ip {
+        margin: 0 20px;
+        }
+
+        .column.drop {
+        border: 2px dashed #FFF;
+        }
+
+        .column.drop article {
+        pointer-events: none;
+        }
+
+        h3 {
+        font-size: 21px;
+        font-family: Helvetica;
+        margin: 0;
+        }
+
+        .card:last-child {
+        margin-bottom: 0;
+        }
+
+        h2 {
+        background: green;
+        margin: -10px -10px 10px;
+        padding: 4px 10px;
+        font-family: Helvetica;
+        font-size: 21px;
+        }
+    </style>
+</head>
+<body>
+    <main class="board">
+
+
+        <div class="column column-todo" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h2>Todo</h2>
+            @foreach (var ticket in Model)
+            {
+                @if (ticket.Status == TicketStatus.ToDo)
                 {
-                    <div class="bg-white p-4 shadow-md rounded-lg">
-                        <h3 class="font-bold">@ticket.Title</h3>
-                        <p class="text-sm text-gray-600">@ticket.Description</p>
-                    </div>
-                }
-            </div>
+                    <article class="card" draggable="true" ondragstart="drag(event)" data-id="@ticket.Id">
+                        <h3>@ticket.Title</h3>
+                    </article>
+                }}
         </div>
-    </div>
-}
+        <div class="column column-ip" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h2>In Progress</h2>
+            @foreach (var ticket in Model)
+            {
+                @if (ticket.Status == TicketStatus.InProgress)
+                {
+                    <article class="card" draggable="true" ondragstart="drag(event)" data-id="@ticket.Id">
+                        <h3>@ticket.Title</h3>
+                    </article>
+                } }
+        </div>
+        <div class="column column-done" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h2>Done</h2>
+            @foreach (var ticket in Model)
+            {
+                @if (ticket.Status == TicketStatus.Done)
+                {
+                    <article class="card" draggable="true" ondragstart="drag(event)" data-id="@ticket.Id">
+                        <h3>@ticket.Title</h3>
+                </article>
+                }}
+            </div>
+
+        
+    </main>
+
+    <script>
+                const dragStart = target => {
+            target.classList.add('dragging');
+        };
+
+        const dragEnd = target => {
+            target.classList.remove('dragging');
+        };
+
+        const dragEnter = event => {
+            event.currentTarget.classList.add('drop');
+        };
+
+        const dragLeave = event => {
+            event.currentTarget.classList.remove('drop');
+        };
+
+        const drag = event => {
+            event.dataTransfer.setData('text/html', event.currentTarget.outerHTML);
+            event.dataTransfer.setData('text/plain', event.currentTarget.dataset.id);
+        };
+
+                  const drop = async event => {
+            event.preventDefault();
+            document.querySelectorAll('.column').forEach(column => column.classList.remove('drop'));
+
+            // Pobierz ID ticketu oraz nowy status
+            const ticketId = event.dataTransfer.getData('text/plain');
+            const draggedElement = document.querySelector(`[data-id="${ticketId}"]`);
+
+            if (!draggedElement) return; // Jeśli nie znaleziono elementu, zakończ funkcję
+
+            const newStatus = event.currentTarget.classList.contains('column-todo') ? 'ToDo' :
+                              event.currentTarget.classList.contains('column-ip') ? 'InProgress' : 'Done';
+
+            // Przenieś element do nowej kolumny
+            event.currentTarget.appendChild(draggedElement);
+
+            // Wyślij żądanie AJAX do kontrolera
+            try {
+                const response = await fetch('/Ticket/ChangeTicketStatus', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        TicketId: ticketId,
+                        NewStatus: newStatus
+                    })
+                });
+
+                const data = await response.json();
+                if (!data.success) {
+                    alert('Failed to update the ticket status.');
+                }
+            } catch (error) {
+                console.error('Error updating status:', error);
+            }
+        };
+
+
+
+        const allowDrop = event => {
+            event.preventDefault();
+        };
+
+        document.querySelectorAll('.column').forEach(column => {
+            column.addEventListener('dragenter', dragEnter);
+            column.addEventListener('dragleave', dragLeave);
+        });
+
+        document.addEventListener('dragstart', e => {
+            if (e.target.className.includes('card')) {
+                dragStart(e.target);
+            }
+        });
+
+        document.addEventListener('dragend', e => {
+            if (e.target.className.includes('card')) {
+                dragEnd(e.target);
+            }
+        });
+    </script>
+</body>

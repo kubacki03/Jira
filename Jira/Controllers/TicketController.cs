@@ -60,29 +60,47 @@ namespace Jira.Controllers
 
             return RedirectToAction("ProjectDetailsPage", "Project", new { projectId = ProjectId });
         }
-
-
-
-        public async Task<ActionResult> ChangeTicketStatus(int ticketId, string newStatus)
+        [HttpPost]
+        public async Task<IActionResult> ChangeTicketStatus([FromBody] TicketStatusUpdateRequest request)
         {
-            var ticket = await _context.Tickets.FirstOrDefaultAsync(p=> p.Id == ticketId);
-       
-            switch (newStatus)
-                {
-                case "InProgress":
-                    ticket.Status=TicketStatus.InProgress;
+            var ticket = await _context.Tickets.FirstOrDefaultAsync(p => p.Id == request.TicketId);
+            if (ticket == null)
+            {
+                return NotFound();
+            }
+
+            Console.WriteLine("Odczytany status: " + request.NewStatus);
+
+            switch (request.NewStatus)
+            {
+                case "ToDo":
+                    ticket.Status = TicketStatus.ToDo;
                     break;
-                case "InReview":
-                    ticket.Status =TicketStatus.InReview;
+                case "InProgress":
+                    ticket.Status = TicketStatus.InProgress;
                     break;
                 case "Done":
                     ticket.Status = TicketStatus.Done;
                     break;
-                
-                }
+                default:
+                    return BadRequest("Invalid status");
+            }
 
-            return View();
+            Console.WriteLine("Nowy stan ticketu: " + ticket.Status);
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true });
         }
+
+
+        public class TicketStatusUpdateRequest
+        {
+            public int TicketId { get; set; }
+            public string NewStatus { get; set; }
+        }
+
+
+
 
         public async Task<ActionResult> ChangeTicketPriority(int ticketId, string newStatus)
         {

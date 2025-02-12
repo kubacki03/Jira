@@ -1,6 +1,7 @@
 ﻿using Jira.Areas.Identity.Data;
 using Jira.Data;
 using Jira.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,7 @@ namespace Jira.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> CreateNewSprint(Sprint sprint, int projectId)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -49,7 +51,7 @@ namespace Jira.Controllers
         }
 
 
-
+        [Authorize]
         public Sprint GetCurrentSprintInProject(int projectId) {
 
             var sprint = _context.Sprints.Include(z=> z.Tickets)
@@ -58,7 +60,7 @@ namespace Jira.Controllers
             return sprint ;
         }
 
-        //Get all tickets for all users in sprint
+        [Authorize]
         public IActionResult GetTicketsFromSprint(int projectId)
         {
             //jest nullem
@@ -66,7 +68,7 @@ namespace Jira.Controllers
 
             if (sprint == null)
             {
-                // Możesz zwrócić pusty widok, komunikat błędu lub przekierowanie
+           
                 return View(new List<Ticket>());
             }
 
@@ -75,7 +77,7 @@ namespace Jira.Controllers
         }
 
 
-
+        [Authorize]
         public async Task<IActionResult> GetSprintDetailsPage(int sprintId)
         {
             var sprint = await _context.Sprints
@@ -94,7 +96,7 @@ namespace Jira.Controllers
             {
                 return Unauthorized("Nie można znaleźć zalogowanego użytkownika.");
             }
-
+            var x = sprint.SprintMasterId;
             TempData["userId"] = user.Id;
             return View(sprint);
         }

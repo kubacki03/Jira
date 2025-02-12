@@ -7,28 +7,38 @@ var connectionString = builder.Configuration.GetConnectionString("JiraContextCon
 
 builder.Services.AddDbContext<JiraContext>(options => options.UseSqlServer(connectionString));
 
-builder.Services.AddDefaultIdentity<JiraUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<JiraContext>();
+builder.Services.AddDefaultIdentity<JiraUser>(options => options.SignIn.RequireConfirmedAccount = false)
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<JiraContext>();
 
-// Add services to the container.
-builder.Services.AddControllersWithViews();
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-
+app.UseSession();
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
-app.UseAuthentication(); // Ensure this is added before authorization
-app.MapRazorPages(); 
+
+app.MapStaticAssets();
+app.MapRazorPages();
+
+
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapRazorPages();
@@ -38,12 +48,5 @@ app.UseEndpoints(endpoints =>
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 });
-app.MapStaticAssets();
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
-
 
 app.Run();

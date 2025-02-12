@@ -24,7 +24,7 @@ namespace Jira.Controllers
             _context = context;
         }
 
-       
+        [Authorize]
         public async Task<ActionResult> CreateNewProject(string description, string name, string password)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -43,7 +43,7 @@ namespace Jira.Controllers
             return View();
         }
 
-
+        [Authorize]
         public async Task<ActionResult> AddUserToProject(string userId, int projectId)
         {
             var project =await  _context.Projects.Include(p=> p.Users).FirstOrDefaultAsync(p=> p.Id==projectId);
@@ -62,20 +62,30 @@ namespace Jira.Controllers
 
         }
 
-      
-        public async Task<ActionResult> JoinAProject(long projectId, string password)
+        [Authorize]
+        public async Task<ActionResult> JoinAProject(string projectName, string password)
         {
             var user = await _userManager.GetUserAsync(User);
-            var project =await _context.Projects.Include(s=> s.Users).FirstOrDefaultAsync(p => (p.Id == projectId && p.Password.Equals(password)));
+            var project =await _context.Projects.Include(s=> s.Users).FirstOrDefaultAsync(p => (p.Name == projectName && p.Password==password));
 
             if (project == null) {
                 TempData["Error"] = "Password incorrect";
                 return View();
             }
+            else
+            {
+                Console.WriteLine("Projet nie jest nullem");
+            }
+            Console.WriteLine("Dudsadddddddddddddddo dosaodsod");
+            foreach (var us in project.Users)
+            {
+                Console.WriteLine(us.UserName);
+            }
 
             if (project.Users.Contains(user))
             {
-                TempData["Error"] = "You already exist in project";
+                TempData["Error"] = "You already exist in this project";
+                return View();
             }
 
             project.Users.Add(user);
@@ -84,7 +94,7 @@ namespace Jira.Controllers
             return View();
         }
 
-
+        [Authorize]
         public async Task<ActionResult> GetUserTicketsInProject(int projectId)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -99,6 +109,8 @@ namespace Jira.Controllers
 
         }
 
+
+        [Authorize]
         public async Task<IActionResult> ProjectDetailsPageAsync(int projectId)
         {
             var project = await _context.Projects.Include(s=> s.Sprints).FirstOrDefaultAsync(p => p.Id == projectId);

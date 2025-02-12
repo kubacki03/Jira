@@ -23,7 +23,7 @@ namespace Jira.Controllers
             _userManager = userManager;
             _context = context;
         }
-
+        [Authorize]
         public async Task<ActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
