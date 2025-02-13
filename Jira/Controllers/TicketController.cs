@@ -1,4 +1,5 @@
-﻿using Jira.Areas.Identity.Data;
+﻿using Azure.Core;
+using Jira.Areas.Identity.Data;
 using Jira.Data;
 using Jira.Models;
 using Microsoft.AspNetCore.Identity;
@@ -23,13 +24,15 @@ namespace Jira.Controllers
             _userManager = userManager;
             _context = context;
         }
-        public async Task<ActionResult> CreateNewTicket(string SelectedUser, string Description, string Title, int ProjectId, int SprintId)
+        public async Task<ActionResult> CreateNewTicket(string SelectedUser, string Description, string Title, int ProjectId, int SprintId, string Priority)
         {
             var user = await _userManager.GetUserAsync(User);
             var assignee = await _context.Users.FirstOrDefaultAsync(u => u.Id == SelectedUser);
             var project = await _context.Projects.FirstOrDefaultAsync(p => p.Id == ProjectId);
             var sprint = await _context.Sprints.Include(s => s.Tickets)
                                                .FirstOrDefaultAsync(s => s.Id == SprintId);
+
+
 
             if (sprint.SprintMasterId != user.Id)
             {
@@ -42,8 +45,11 @@ namespace Jira.Controllers
                 return NotFound();
             }
 
+          
+
             var ticket = new Ticket
             {
+                
                 Assignee = assignee,
                 AssigneeId = SelectedUser,
                 Description = Description,
@@ -52,7 +58,26 @@ namespace Jira.Controllers
                 Title = Title,
                 Sprint = sprint,
                 SprintId = SprintId
+                
             };
+
+            switch (Priority)
+            {
+                case "Critical":
+                    ticket.Priority = TicketPriority.Critical;
+                    break;
+                case "High":
+                    ticket.Priority = TicketPriority.High;
+                    break;
+                case "Normal":
+                    ticket.Priority = TicketPriority.Medium;
+                    break;
+
+                case "Low":
+                    ticket.Priority = TicketPriority.Low;
+                    break;
+
+            }
 
             _context.Tickets.Add(ticket);
             sprint.Tickets.Add(ticket);

@@ -3,14 +3,46 @@
 <h1>@Model.Name</h1>
 <p>@Model.Description</p>
 
-@foreach(var sprint in Model.Sprints){
-    <p>Nazwa: @sprint.Name</p>
-    <p>@sprint.StartDate do @sprint.EndDate</p>
-    <a asp-controller="Sprint" asp-action="GetSprintDetailsPage" asp-route-sprintId="@sprint.Id">
-        Zarzadzaj sprintem
-    </a>
-}
+@if (Model.Sprints.Any())
+{
+    var lastSprint = Model.Sprints.OrderByDescending(s => s.StartDate).First();
 
+    <div id="lastSprint">
+        <p>Nazwa: @lastSprint.Name</p>
+        <p>@lastSprint.StartDate do @lastSprint.EndDate</p>
+        <a asp-controller="Sprint" asp-action="GetSprintDetailsPage" asp-route-sprintId="@lastSprint.Id">
+            Zarządzaj sprintem
+        </a>
+    </div>
+
+    <button id="toggleSprints" class="bg-blue-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-700 transition mt-4">
+        Pokaż wszystkie sprinty
+    </button>
+
+    <div id="allSprints" style="display: none;">
+        @foreach (var sprint in Model.Sprints.OrderByDescending(s => s.StartDate).Skip(1))
+        {
+            <p>Nazwa: @sprint.Name</p>
+            <p>@sprint.StartDate do @sprint.EndDate</p>
+            <a asp-controller="Sprint" asp-action="GetSprintDetailsPage" asp-route-sprintId="@sprint.Id">
+                Zarządzaj sprintem
+            </a>
+        }
+    </div>
+
+    <script>
+        document.getElementById("toggleSprints").addEventListener("click", function() {
+            var sprintList = document.getElementById("allSprints");
+            if (sprintList.style.display === "none") {
+                sprintList.style.display = "block";
+                this.textContent = "Pokaż mniej";
+            } else {
+                sprintList.style.display = "none";
+                this.textContent = "Pokaż wszystkie sprinty";
+            }
+        });
+    </script>
+}
 
 <a asp-controller="Project" asp-action="GetUserTicketsInProject" asp-route-sprintId="@Model.Id">
     Moje zadania w projekcie
@@ -22,7 +54,7 @@
 @if (Model.CreatorId == (TempData["userId"] as string))
 {
     <form method="post" asp-action="CreateNewSprint" asp-controller="Sprint" class="bg-white/80 p-8 rounded-lg shadow-xl backdrop-blur-md w-full max-w-lg mx-4 sm:max-w-xl md:max-w-2xl">
-        <h2 class="text-3xl font-semibold text-gray-800 text-center mb-6">Stworz nowy sprint</h2>
+        <h2 class="text-3xl font-semibold text-gray-800 text-center mb-6">Stwórz nowy sprint</h2>
 
         <div class="flex flex-wrap space-y-4 sm:space-y-0 sm:flex-row sm:space-x-4 mb-6">
             <div class="flex-1">
