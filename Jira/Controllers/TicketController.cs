@@ -68,8 +68,11 @@ namespace Jira.Controllers
             {
                 return NotFound();
             }
+            else if (ticket.Status.Equals(request.NewStatus)) {
+                return Json(new { success = true });
+            }
 
-            Console.WriteLine("Odczytany status: " + request.NewStatus);
+           
 
             switch (request.NewStatus)
             {
