@@ -155,7 +155,7 @@ namespace Jira.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
         
-            var tickets = await _context.Tickets.Where(s => s.AssigneeId==user.Id).ToListAsync();
+            var tickets = await _context.Tickets.Include(z=> z.Project).Where(s => s.AssigneeId==user.Id).ToListAsync();
 
 
 

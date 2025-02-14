@@ -1,6 +1,6 @@
 ﻿
 @if(TempData["Error"]!=null){
-	<h1>You already exist in project</h1>
+	<h1>@TempData["Error"]</h1>
 }else{
 	<h1>Welcome to the Project</h1>
 }

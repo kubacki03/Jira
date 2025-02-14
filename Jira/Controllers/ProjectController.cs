@@ -36,12 +36,50 @@ namespace Jira.Controllers
                 return View();
             }
 
-            Project newProject = new Project { CreatedAt = DateTime.Now, Description = description, Name = name, Creator = user, Password = password };
+            Project newProject = new Project { CreatedAt = DateTime.Now, Description = description, Name = name, Creator = user, Password = Hash.HashPassword(password) };
             newProject.Users.Add(user);
             _context.Projects.Add(newProject);
             _context.SaveChanges();
             return View();
         }
+
+        [Authorize]
+        public async Task<ActionResult> JoinAProject(string projectName, string password)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var project = await _context.Projects.Include(s => s.Users).FirstOrDefaultAsync(p => (p.Name == projectName));
+
+
+
+            if (project == null)
+            {
+                TempData["Error"] = "Projekt nie istnieje";
+                return View();
+            }
+            else if (!Hash.VerifyPassword(password, project.Password))
+            {
+                TempData["Error"] = "Bledne haslo";
+                return View();
+            }
+
+            Console.WriteLine("Dudsadddddddddddddddo dosaodsod");
+            foreach (var us in project.Users)
+            {
+                Console.WriteLine(us.UserName);
+            }
+
+            if (project.Users.Contains(user))
+            {
+                TempData["Error"] = "You already exist in this project";
+                return View();
+            }
+
+            project.Users.Add(user);
+            _context.SaveChanges();
+
+            return View();
+        }
+
 
         [Authorize]
         public async Task<ActionResult> AddUserToProject(string userId, int projectId)
@@ -62,37 +100,7 @@ namespace Jira.Controllers
 
         }
 
-        [Authorize]
-        public async Task<ActionResult> JoinAProject(string projectName, string password)
-        {
-            var user = await _userManager.GetUserAsync(User);
-            var project =await _context.Projects.Include(s=> s.Users).FirstOrDefaultAsync(p => (p.Name == projectName && p.Password==password));
-
-            if (project == null) {
-                TempData["Error"] = "Password incorrect";
-                return View();
-            }
-            else
-            {
-                Console.WriteLine("Projet nie jest nullem");
-            }
-            Console.WriteLine("Dudsadddddddddddddddo dosaodsod");
-            foreach (var us in project.Users)
-            {
-                Console.WriteLine(us.UserName);
-            }
-
-            if (project.Users.Contains(user))
-            {
-                TempData["Error"] = "You already exist in this project";
-                return View();
-            }
-
-            project.Users.Add(user);
-            _context.SaveChanges();
-
-            return View();
-        }
+        
 
         [Authorize]
         public async Task<ActionResult> GetUserTicketsInProject(int projectId)

@@ -1,13 +1,29 @@
 ﻿@model Jira.Models.Project
 
-<h1>@Model.Name</h1>
-<p>@Model.Description</p>
 
+
+
+<div class="my-4">
+<h1 class="text-2xl md:text-4xl lg:text-5xl font-bold" >@Model.Name</h1>
+<p class="text-2xl md:text-3xl lg:text-4xl font-regular">@Model.Description</p>
+
+    <header class="my-4">
+        <a asp-controller="Project" asp-action="GetUserTicketsInProject" asp-route-projectId="@Model.Id" class="bg-amber-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-amber-700 transition">
+            Moje zadania w projekcie
+        </a>
+        <a asp-controller="Sprint" asp-action="GetTicketsFromSprint" asp-route-projectId="@Model.Id" class="bg-amber-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-amber-700 transition mx-2">
+            Tablica kanban
+        </a>
+    </header>
+
+
+</div>
 @if (Model.Sprints.Any())
 {
     var lastSprint = Model.Sprints.OrderByDescending(s => s.StartDate).First();
 
-    <div id="lastSprint">
+    <div id="lastSprint" class="max-w-sm bg-white border-2 rounded-lg shadow-md p-6">
+        <h3 class="font-bold">Obecny sprint</h3>
         <p>Nazwa: @lastSprint.Name</p>
         <p>@lastSprint.StartDate do @lastSprint.EndDate</p>
         <a asp-controller="Sprint" asp-action="GetSprintDetailsPage" asp-route-sprintId="@lastSprint.Id">
@@ -15,18 +31,20 @@
         </a>
     </div>
 
-    <button id="toggleSprints" class="bg-blue-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-700 transition mt-4">
+    <button id="toggleSprints" class="bg-blue-500 text-white px-4 py-2 my-3 rounded-md shadow-md hover:bg-blue-700 transition mt-4">
         Pokaż wszystkie sprinty
     </button>
 
-    <div id="allSprints" style="display: none;">
+    <div id="allSprints" style="display: none;" >
         @foreach (var sprint in Model.Sprints.OrderByDescending(s => s.StartDate).Skip(1))
         {
+            <div class="max-w-sm bg-white border-2 rounded-lg shadow-md p-6">
             <p>Nazwa: @sprint.Name</p>
             <p>@sprint.StartDate do @sprint.EndDate</p>
             <a asp-controller="Sprint" asp-action="GetSprintDetailsPage" asp-route-sprintId="@sprint.Id">
                 Zarządzaj sprintem
             </a>
+            </div>
         }
     </div>
 
@@ -44,12 +62,7 @@
     </script>
 }
 
-<a asp-controller="Project" asp-action="GetUserTicketsInProject" asp-route-sprintId="@Model.Id">
-    Moje zadania w projekcie
-</a>
-<a asp-controller="Sprint" asp-action="GetTicketsFromSprint" asp-route-projectId="@Model.Id">
-    Tablica kanban
-</a>
+
 
 @if (Model.CreatorId == (TempData["userId"] as string))
 {
@@ -79,4 +92,9 @@
             Dodaj
         </button>
     </form>
+
+    @if(TempData["Error"]!= null){
+        <h1 class="text-red-600 font-bold">@TempData["Error"]</h1>
+    }
 }
+<script src="https://cdn.tailwindcss.com"></script>

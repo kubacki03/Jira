@@ -32,6 +32,16 @@ namespace Jira.Controllers
             var project = await _context.Projects.Include(x => x.Sprints)
                                                  .FirstOrDefaultAsync(p => p.Id == projectId);
 
+            var existingSprint = project.Sprints.Where(r => (r.StartDate >= sprint.StartDate && r.StartDate <= sprint.EndDate)
+                         || (r.EndDate >= sprint.StartDate && r.EndDate <= sprint.EndDate)
+                         || (r.StartDate < sprint.StartDate && r.EndDate > sprint.EndDate));
+
+            if (existingSprint != null)
+            {
+                TempData["Error"] = "Istnieje juz sprint w tym czasie";
+                return RedirectToAction("ProjectDetailsPage", "Project", new { projectId = projectId });
+            }
+
             if (project == null)
             {
                 return NotFound("Projekt nie istnieje.");
@@ -72,7 +82,7 @@ namespace Jira.Controllers
                 return View(new List<Ticket>());
             }
 
-            var tickets = _context.Tickets.Where(t => t.SprintId == sprint.Id).ToList();
+            var tickets = _context.Tickets.Include(a => a.Assignee).Where(t => t.SprintId == sprint.Id).ToList();
             return View(tickets);
         }
 
