@@ -6,7 +6,7 @@ namespace Jira.Models
     {
         public int Id { get; set; }
         public string Content { get; set; } = string.Empty;
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         public int TicketId { get; set; }
         public Ticket Ticket { get; set; }

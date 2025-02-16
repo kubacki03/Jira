@@ -1,0 +1,48 @@
+﻿@model Jira.Models.Ticket
+
+<h1 class="font-bold text-4xl">
+	<a asp-controller="Project" asp-action="GetUserTicketsInProject" asp-route-projectId="@Model.ProjectId" class="text-zinc-400">
+		@Model.Project.Name/
+	</a> @Model.Title
+</h1>
+<h2 class="font-bold text-2xl"> @Model.Description</h2>
+<h3 class="font-bold text-xl">Status: @Model.Status </h3>
+<h3 class="font-bold text-xl">Przypisana osoba: @Model.Assignee.UserName </h3>
+
+@if(Model.Priority==TicketPriority.Critical){
+	<h3 class="font-bold text-xl mb-4 text-red-500">Priorytet: @Model.Priority </h3>
+}else{
+	<h3 class="font-bold text-xl mb-4   ">Priorytet: @Model.Priority </h3>
+}
+<h2 class="font-bold text-xl">Pliki do zadania</h2>
+
+@foreach(var att in Model.Attachments){
+	<img src="@att.FilePath" alt="@att.FileName"/>
+
+}
+
+
+<form method="post" asp-action="AddFile" asp-controller="Comment" enctype="multipart/form-data">
+	<label>Umieść pliki</label>
+	<input type="file" id="file" name="file" required />
+	<input type="number" id="ticketId" name="ticketId" value="@Model.Id" hidden />
+	<button type="submit" class=" text-amber-500 font-bold ">Dołącz pliki</button>
+</form>
+
+<h2 class="font-bold text-xl mt-4">Komentarze</h2>
+
+@foreach (var comment in Model.Comments)
+{
+	<p>@comment.User: @comment.Content</p>
+
+}
+<hr />
+
+<form method="post" asp-action="AddComment" asp-controller="Comment">
+	<label>Mój komentarz </label>
+	<input  type="text" id="content" name="content" class="w-full " required />
+	<input type="number" id="ticketId" name="ticketId" value="@Model.Id" hidden />
+	<button type="submit" class="text-amber-500 font-bold ">Wyslij</button>
+
+
+</form>

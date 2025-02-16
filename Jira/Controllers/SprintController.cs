@@ -32,7 +32,7 @@ namespace Jira.Controllers
             var project = await _context.Projects.Include(x => x.Sprints)
                                                  .FirstOrDefaultAsync(p => p.Id == projectId);
 
-            var existingSprint = project.Sprints.Where(r => (r.StartDate >= sprint.StartDate && r.StartDate <= sprint.EndDate)
+            var existingSprint = project.Sprints.FirstOrDefault(r => (r.StartDate >= sprint.StartDate && r.StartDate <= sprint.EndDate)
                          || (r.EndDate >= sprint.StartDate && r.EndDate <= sprint.EndDate)
                          || (r.StartDate < sprint.StartDate && r.EndDate > sprint.EndDate));
 

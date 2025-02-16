@@ -161,5 +161,20 @@ namespace Jira.Controllers
 
             return View(tickets);
         }
+
+        public ActionResult<Ticket> GetTicketDetails(int ticketId)
+        {
+            var ticket = _context.Tickets
+    .Include(t => t.Comments)
+        .ThenInclude(c => c.User) 
+    .Include(t => t.Attachments)
+    .Include(p=>p.Project)
+    .Include(u => u.Assignee)
+    .FirstOrDefault(t => t.Id == ticketId);
+
+           
+
+            return View(ticket);
+        }
     }
 }

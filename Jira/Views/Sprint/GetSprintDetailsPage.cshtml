@@ -2,8 +2,9 @@
 
 @if (Model != null)
 {
-    <h1>@Model.Name</h1>
-    <p>@Model.StartDate do @Model.EndDate</p>
+    <h1 class="font-bold text-4xl">Sprint: @Model.Name</h1>
+    <p class="class-bold text-2xl">Czas trwania @Model.StartDate do @Model.EndDate</p>
+
 
     @if (Model.SprintMasterId == (TempData["userId"] as string))
     {
@@ -68,7 +69,8 @@
                 Dodaj
             </button>
         </form>
-    }
+        }
+    
 }
 else
 {
