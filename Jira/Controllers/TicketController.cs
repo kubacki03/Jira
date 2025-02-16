@@ -114,7 +114,7 @@ namespace Jira.Controllers
                     return BadRequest("Invalid status");
             }
 
-            Console.WriteLine("Nowy stan ticketu: " + ticket.Status);
+            
             await _context.SaveChangesAsync();
 
             return Json(new { success = true });

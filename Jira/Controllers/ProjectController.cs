@@ -62,7 +62,7 @@ namespace Jira.Controllers
                 return View();
             }
 
-            Console.WriteLine("Dudsadddddddddddddddo dosaodsod");
+            
             foreach (var us in project.Users)
             {
                 Console.WriteLine(us.UserName);

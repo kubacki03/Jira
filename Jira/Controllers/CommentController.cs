@@ -46,21 +46,21 @@ namespace Jira.Controllers
                 return BadRequest("Nie wybrano pliku.");
             }
 
-            long maxFileSize = 5 * 1024 * 1024; // 5 MB
+            long maxFileSize = 5 * 1024 * 1024; 
             if (file.Length > maxFileSize)
             {
                 return BadRequest("Plik jest za duży! Maksymalny rozmiar to 5 MB.");
             }
 
-            // Ścieżka zapisu pliku
+          
             var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
-            Directory.CreateDirectory(uploadPath); // Tworzy folder, jeśli nie istnieje
+            Directory.CreateDirectory(uploadPath); 
 
-            // Unikalna nazwa pliku
+            
             var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
             var filePath = Path.Combine(uploadPath, fileName);
 
-            // Zapis pliku na serwerze
+          
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);

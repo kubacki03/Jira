@@ -73,7 +73,7 @@ namespace Jira.Controllers
         [Authorize]
         public IActionResult GetTicketsFromSprint(int projectId)
         {
-            //jest nullem
+            
             var sprint = GetCurrentSprintInProject(projectId);
 
             if (sprint == null)
@@ -92,8 +92,8 @@ namespace Jira.Controllers
         {
             var sprint = await _context.Sprints
                 .Include(s => s.Tickets)
-                .Include(s => s.Project) // Dodatkowe załadowanie projektu
-                .ThenInclude(p => p.Users) // Załaduj użytkowników projektu
+                .Include(s => s.Project) 
+                .ThenInclude(p => p.Users) 
                 .FirstOrDefaultAsync(p => p.Id == sprintId);
 
             if (sprint == null)

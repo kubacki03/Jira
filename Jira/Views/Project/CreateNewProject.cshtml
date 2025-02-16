@@ -1,6 +1,25 @@
 ﻿@page
 @model Jira.Views.Project.CreateNewProjectModel
-<h1>New project was created</h1>
-@if(TempData["Error"]!=null){
-	<p>@TempData["Error"]</p>
-}
+
+<div class="flex gap-4 justify-content-center ">
+	@if (TempData["Error"] != null)
+	{
+
+		<h1 class="font-bold text-4xl">@TempData["Error"]</h1>
+		<br />
+		<img src="/fonts/circle-xmark-solid.svg" alt="Opis SVG" width="100" height="100">
+
+	}
+	else
+	{
+		<h1 class="font-bold text-4xl">Własnie utworzono nowy projekt!</h1>
+		<img src="/fonts/circle-check-solid.svg" alt="Opis SVG" width="100" height="100">
+	}
+</div>
+
+<script>
+
+	setTimeout(function () {
+		window.location.href = '@Url.Action("Index", "Home")';
+	}, 3000);
+</script>
