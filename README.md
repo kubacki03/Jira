@@ -1,7 +1,7 @@
 Jira-like projekt do zarządzania projektami
 
 ## Demo
-https://youtu.be/yfPrEmxnQ_4
+https://drive.google.com/file/d/16lScJfdYcOq7r1IZF9qea8wEJddNo-K3/view?usp=drive_link
 
 ## Funkcjonalności
 -Tablica Kanban: Wizualizacja zadań w postaci kart, które można przeciągać pomiędzy kolumnami (np. Do zrobienia, W trakcie, Zakończone).
